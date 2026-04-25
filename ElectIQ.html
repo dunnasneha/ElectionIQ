@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ElectIQ — Election Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ═══════════════════════════════════════════
+   ROOT & THEME VARIABLES
+═══════════════════════════════════════════ */
+:root {
+  --bg: #f0ede8;
+  --bg2: #e8e4dd;
+  --surface: #ffffff;
+  --surface2: #f7f5f2;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.14);
+  --text: #1a1814;
+  --text2: #6b6560;
+  --text3: #9e9892;
+  --accent: #c9382a;
+  --accent2: #1e3a8a;
+  --accent3: #0f766e;
+  --gold: #b45309;
+  --correct: #166534;
+  --correct-bg: #dcfce7;
+  --wrong: #991b1b;
+  --wrong-bg: #fee2e2;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.1);
+  --nav-h: 64px;
+  --transition: 0.28s cubic-bezier(0.4,0,0.2,1);
+}
+[data-theme="dark"] {
+  --bg: #0f0e0d;
+  --bg2: #1a1917;
+  --surface: #221f1c;
+  --surface2: #2d2a26;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #f0ece5;
+  --text2: #9e9990;
+  --text3: #6b6760;
+  --shadow: 0 2px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.5);
+}
+
+/* ═══════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  transition: background var(--transition), color var(--transition);
+  overflow-x: hidden;
+}
+::selection { background: rgba(201,56,42,0.2); }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+a { color: inherit; text-decoration: none; }
+button { font-family: 'Outfit', sans-serif; cursor: pointer; }
+input, textarea { font-family: 'Outfit', sans-serif; }
+
+/* ═══════════════════════════════════════════
+   BACKGROUND TEXTURE
+═══════════════════════════════════════════ */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: radial-gradient(circle at 20% 20%, rgba(201,56,42,0.04) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(30,58,138,0.04) 0%, transparent 50%);
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+#navbar {
+  position: sticky; top: 0; z-index: 1000; height: var(--nav-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+  box-shadow: var(--shadow);
+  transition: background var(--transition), border-color var(--transition);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; color: var(--text);
+}
+.nav-logo-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--accent); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 800;
+}
+.nav-links { display: flex; gap: 2px; align-items: center; }
+.nav-link {
+  padding: 8px 14px; border-radius: var(--radius-sm);
+  background: transparent; border: none;
+  font-size: 13.5px; font-weight: 500; color: var(--text2);
+  transition: all 0.2s; white-space: nowrap;
+}
+.nav-link:hover { background: var(--bg2); color: var(--text); }
+.nav-link.active { background: var(--accent); color: #fff !important; }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.theme-toggle {
+  width: 44px; height: 24px; border-radius: 99px; border: none;
+  background: var(--bg2); position: relative; cursor: pointer;
+  transition: background 0.3s; outline: none;
+  border: 1px solid var(--border2);
+}
+.theme-toggle::after {
+  content: ''; position: absolute; left: 3px; top: 3px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--text2); transition: transform 0.3s, background 0.3s;
+}
+[data-theme="dark"] .theme-toggle::after { transform: translateX(20px); background: var(--accent); }
+.theme-icon { font-size: 12px; }
+.hamburger { display: none; background: none; border: none; font-size: 20px; color: var(--text); padding: 6px; }
+
+/* MOBILE MENU */
+#mobileMenu {
+  position: fixed; top: var(--nav-h); left: -280px; bottom: 0;
+  width: 280px; background: var(--surface);
+  border-right: 1px solid var(--border);
+  z-index: 999; transition: left 0.3s ease;
+  padding: 16px; display: flex; flex-direction: column; gap: 4px;
+  overflow-y: auto;
+}
+#mobileMenu.open { left: 0; }
+#menuOverlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  z-index: 998; display: none;
+  top: var(--nav-h);
+}
+#menuOverlay.show { display: block; }
+.mob-link {
+  width: 100%; padding: 12px 16px; border-radius: var(--radius-sm);
+  background: none; border: none; text-align: left;
+  font-size: 15px; font-weight: 500; color: var(--text2);
+  transition: all 0.2s; display: flex; align-items: center; gap: 10px;
+}
+.mob-link:hover { background: var(--bg2); color: var(--text); }
+.mob-link.active { background: var(--accent); color: #fff; }
+
+/* ═══════════════════════════════════════════
+   MAIN LAYOUT
+═══════════════════════════════════════════ */
+#app { position: relative; z-index: 1; }
+.section { display: none; padding: 32px 24px 48px; max-width: 1200px; margin: 0 auto; }
+.section.active { display: block; animation: sectionIn 0.4s ease; }
+@keyframes sectionIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+.section-header { margin-bottom: 32px; }
+.section-header h2 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(24px,4vw,36px); line-height: 1.1; }
+.section-header p { color: var(--text2); font-size: 15px; margin-top: 6px; }
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 99px; font-size: 11px;
+  font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* ═══════════════════════════════════════════
+   CARDS & SHARED COMPONENTS
+═══════════════════════════════════════════ */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); transition: border-color 0.2s, box-shadow 0.2s, background var(--transition);
+}
+.card:hover { border-color: var(--border2); box-shadow: var(--shadow); }
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 10px 20px; border-radius: var(--radius-sm); border: none;
+  font-size: 14px; font-weight: 500; transition: all 0.2s; cursor: pointer;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.btn-secondary { background: var(--bg2); color: var(--text); border: 1px solid var(--border2); }
+.btn-secondary:hover { background: var(--border2); }
+.btn-outline { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+.btn-sm { padding: 6px 14px; font-size: 12px; }
+
+/* ═══════════════════════════════════════════
+   MODULE 1: TIMELINE
+═══════════════════════════════════════════ */
+.country-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+.country-tab {
+  padding: 9px 18px; border-radius: 99px; border: 1.5px solid var(--border2);
+  background: transparent; font-size: 13px; font-weight: 500; color: var(--text2);
+  cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 7px;
+}
+.country-tab:hover { border-color: var(--accent); color: var(--accent); }
+.country-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.tl-wrapper { position: relative; padding-left: 32px; }
+.tl-wrapper::before {
+  content: ''; position: absolute; left: 15px; top: 20px; bottom: 20px;
+  width: 2px; background: linear-gradient(to bottom, var(--accent), var(--accent2), var(--accent3));
+  border-radius: 99px;
+}
+.tl-item {
+  position: relative; margin-bottom: 20px;
+  opacity: 0; animation: tlIn 0.5s ease forwards;
+}
+.tl-item:nth-child(1) { animation-delay: 0.05s; }
+.tl-item:nth-child(2) { animation-delay: 0.1s; }
+.tl-item:nth-child(3) { animation-delay: 0.15s; }
+.tl-item:nth-child(4) { animation-delay: 0.2s; }
+.tl-item:nth-child(5) { animation-delay: 0.25s; }
+.tl-item:nth-child(6) { animation-delay: 0.3s; }
+.tl-item:nth-child(7) { animation-delay: 0.35s; }
+@keyframes tlIn { to { opacity: 1; } }
+.tl-dot {
+  position: absolute; left: -25px; top: 18px;
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 3px solid var(--surface); z-index: 1;
+}
+.tl-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px; cursor: pointer;
+  transition: all 0.2s; position: relative; overflow: hidden;
+}
+.tl-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+}
+.tl-card:hover { border-color: var(--border2); transform: translateX(3px); }
+.tl-card.expanded { border-color: var(--border2); box-shadow: var(--shadow); }
+.tl-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.tl-phase { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+.tl-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 3px; }
+.tl-time { font-size: 12px; color: var(--text3); display: flex; align-items: center; gap: 5px; }
+.tl-status {
+  flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 99px;
+}
+.status-past { background: var(--bg2); color: var(--text3); }
+.status-current { background: rgba(201,56,42,0.1); color: var(--accent); }
+.status-upcoming { background: rgba(30,58,138,0.1); color: var(--accent2); }
+.tl-detail {
+  display: none; margin-top: 14px; padding-top: 14px;
+  border-top: 1px solid var(--border); font-size: 13.5px;
+  color: var(--text2); line-height: 1.65;
+}
+.tl-card.expanded .tl-detail { display: block; }
+.tl-actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+.phase-announce .tl-card::before, .phase-announce .tl-dot { background: #c9382a; }
+.phase-announce .tl-phase { color: #c9382a; }
+.phase-filing .tl-card::before, .phase-filing .tl-dot { background: #b45309; }
+.phase-filing .tl-phase { color: #b45309; }
+.phase-campaign .tl-card::before, .phase-campaign .tl-dot { background: #1e3a8a; }
+.phase-campaign .tl-phase { color: #1e3a8a; }
+.phase-voting .tl-card::before, .phase-voting .tl-dot { background: #0f766e; }
+.phase-voting .tl-phase { color: #0f766e; }
+.phase-results .tl-card::before, .phase-results .tl-dot { background: #7c3aed; }
+.phase-results .tl-phase { color: #7c3aed; }
+.countdown-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 24px; margin-bottom: 24px;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+}
+.countdown-label { font-size: 13px; color: var(--text3); margin-bottom: 6px; }
+.countdown-digits { display: flex; gap: 12px; }
+.cd-unit { text-align: center; }
+.cd-num { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--accent); display: block; }
+.cd-lbl { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* ═══════════════════════════════════════════
+   MODULE 2: QUIZ
+═══════════════════════════════════════════ */
+.quiz-container { max-width: 660px; margin: 0 auto; }
+.quiz-progress-wrap { margin-bottom: 24px; }
+.quiz-meta { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text3); margin-bottom: 8px; }
+.quiz-best { display: flex; align-items: center; gap: 5px; color: var(--gold); font-weight: 600; }
+.progress-track { height: 6px; background: var(--bg2); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #e85c50); border-radius: 99px; transition: width 0.4s ease; }
+.quiz-card { padding: 28px; }
+.q-num { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); font-weight: 600; margin-bottom: 12px; }
+.q-text { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; line-height: 1.4; margin-bottom: 24px; }
+.q-opts { display: flex; flex-direction: column; gap: 10px; }
+.q-opt {
+  padding: 14px 18px; border-radius: var(--radius-sm); border: 1.5px solid var(--border2);
+  background: var(--surface2); text-align: left; font-size: 14px; color: var(--text);
+  font-weight: 500; transition: all 0.2s; cursor: pointer;
+  display: flex; align-items: center; gap: 12px;
+}
+.q-opt:hover:not(:disabled) { border-color: var(--accent); background: rgba(201,56,42,0.04); }
+.q-opt.correct { border-color: var(--correct); background: var(--correct-bg) !important; color: var(--correct); }
+.q-opt.wrong { border-color: var(--wrong); background: var(--wrong-bg) !important; color: var(--wrong); }
+.q-opt:disabled { cursor: default; }
+.opt-marker {
+  width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid currentColor;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px;
+  opacity: 0.5;
+}
+.q-opt.correct .opt-marker, .q-opt.wrong .opt-marker { opacity: 1; }
+.q-feedback {
+  margin-top: 16px; padding: 14px 16px; border-radius: var(--radius-sm);
+  font-size: 13.5px; line-height: 1.6; display: none;
+}
+.q-feedback.show { display: block; }
+.q-feedback.correct-f { background: var(--correct-bg); color: var(--correct); border-left: 3px solid var(--correct); }
+.q-feedback.wrong-f { background: var(--wrong-bg); color: var(--wrong); border-left: 3px solid var(--wrong); }
+.quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+#scoreCard {
+  display: none; padding: 48px 28px; text-align: center;
+}
+#scoreCard.show { display: block; }
+.score-ring { position: relative; width: 130px; height: 130px; margin: 0 auto 24px; }
+.score-ring svg { transform: rotate(-90deg); }
+.score-ring-num {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 28px; color: var(--accent);
+}
+.score-ring-label { font-size: 12px; color: var(--text3); margin-top: -2px; }
+.score-grade { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+.score-msg { color: var(--text2); font-size: 15px; margin-bottom: 24px; }
+.confetti-wrap { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; }
+.confetti-piece {
+  position: absolute; width: 8px; height: 8px;
+  animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+  to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+.export-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+
+/* ═══════════════════════════════════════════
+   MODULE 3: GLOSSARY
+═══════════════════════════════════════════ */
+.gloss-controls { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+.search-wrap { position: relative; }
+.search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 14px; }
+.gloss-search {
+  width: 100%; padding: 12px 14px 12px 40px; border-radius: var(--radius-sm);
+  background: var(--surface); border: 1px solid var(--border2);
+  font-size: 14px; color: var(--text); outline: none; transition: border-color 0.2s;
+}
+.gloss-search:focus { border-color: var(--accent); }
+.gloss-search::placeholder { color: var(--text3); }
+.gloss-cats { display: flex; gap: 8px; flex-wrap: wrap; }
+.cat-btn {
+  padding: 6px 16px; border-radius: 99px; border: 1px solid var(--border2);
+  background: transparent; font-size: 12px; font-weight: 600; color: var(--text3);
+  cursor: pointer; transition: all 0.2s;
+}
+.cat-btn:hover { border-color: var(--border2); color: var(--text); }
+.cat-btn.active { background: var(--surface); border-color: var(--accent); color: var(--accent); }
+.gloss-stats { font-size: 13px; color: var(--text3); margin-bottom: 12px; }
+.gloss-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+.gloss-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); overflow: hidden; cursor: pointer;
+  transition: all 0.2s;
+}
+.gloss-item:hover { border-color: var(--border2); }
+.gloss-head {
+  padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.gloss-term { font-weight: 600; font-size: 14.5px; }
+.gloss-cat-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap; }
+.cat-process { background: rgba(201,56,42,0.1); color: #c9382a; }
+.cat-legal   { background: rgba(30,58,138,0.1); color: #1e3a8a; }
+.cat-voter   { background: rgba(180,83,9,0.1); color: #b45309; }
+.cat-system  { background: rgba(15,118,110,0.1); color: #0f766e; }
+.gloss-body { display: none; padding: 0 16px 14px; font-size: 13px; color: var(--text2); line-height: 1.65; border-top: 1px solid var(--border); }
+.gloss-item.open .gloss-body { display: block; }
+.gloss-item.open { border-color: var(--border2); }
+.gloss-chevron { color: var(--text3); font-size: 11px; transition: transform 0.25s; flex-shrink: 0; }
+.gloss-item.open .gloss-chevron { transform: rotate(180deg); }
+.gloss-empty { grid-column: 1/-1; text-align: center; padding: 48px; color: var(--text3); font-size: 14px; }
+.gloss-ask { margin-top: 10px; font-size: 12px; }
+
+/* ═══════════════════════════════════════════
+   MODULE 4: COMPARE
+═══════════════════════════════════════════ */
+.compare-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+.compare-card { padding: 24px; }
+.cmp-flag { font-size: 36px; margin-bottom: 8px; }
+.cmp-country { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 3px; }
+.cmp-system { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 700; color: var(--accent); margin-bottom: 18px; }
+.cmp-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid var(--border); gap: 8px; }
+.cmp-row:last-of-type { border-bottom: none; }
+.cmp-key { font-size: 12px; color: var(--text3); }
+.cmp-val { font-size: 13px; font-weight: 600; text-align: right; max-width: 55%; }
+.cmp-bars { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
+.bar-item {}
+.bar-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); margin-bottom: 5px; }
+.bar-pct { font-weight: 600; color: var(--text); }
+.bar-track { height: 7px; background: var(--bg2); border-radius: 99px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 99px; transition: width 1.2s cubic-bezier(0.34,1.56,0.64,1); }
+.cmp-highlight { background: rgba(201,56,42,0.04); border-color: rgba(201,56,42,0.25); }
+
+/* ═══════════════════════════════════════════
+   MODULE 5: CHAT
+═══════════════════════════════════════════ */
+.chat-layout { display: grid; grid-template-columns: 1fr; max-width: 780px; margin: 0 auto; }
+.chat-window {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); display: flex; flex-direction: column;
+  height: 560px; overflow: hidden;
+}
+.chat-topbar {
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.chat-agent { display: flex; align-items: center; gap: 10px; }
+.agent-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 800; font-family: 'Syne', sans-serif;
+}
+.agent-info {}
+.agent-name { font-weight: 600; font-size: 14px; }
+.agent-status { font-size: 11px; color: var(--accent3); display: flex; align-items: center; gap: 4px; }
+.agent-status::before { content: '●'; font-size: 7px; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+.chat-clear { background: none; border: none; color: var(--text3); font-size: 13px; cursor: pointer; padding: 6px 10px; border-radius: 6px; transition: all 0.2s; }
+.chat-clear:hover { background: var(--bg2); color: var(--accent); }
+.chat-messages { flex: 1; overflow-y: auto; padding: 20px 18px; display: flex; flex-direction: column; gap: 16px; }
+.msg { display: flex; gap: 10px; max-width: 86%; }
+.msg.user { margin-left: auto; flex-direction: row-reverse; }
+.msg-avatar {
+  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700;
+}
+.msg.assistant .msg-avatar { background: rgba(201,56,42,0.1); color: var(--accent); }
+.msg.user .msg-avatar { background: rgba(30,58,138,0.1); color: var(--accent2); }
+.msg-bubble {
+  padding: 11px 15px; font-size: 14px; line-height: 1.65;
+}
+.msg.assistant .msg-bubble {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 4px 14px 14px 14px;
+}
+.msg.user .msg-bubble {
+  background: rgba(30,58,138,0.08); border: 1px solid rgba(30,58,138,0.15);
+  border-radius: 14px 4px 14px 14px; color: var(--text);
+}
+.msg-bubble strong { color: var(--text); font-weight: 600; }
+.msg-bubble ul { padding-left: 16px; margin-top: 4px; }
+.msg-bubble li { margin-bottom: 3px; }
+.typing-dots { display: flex; gap: 4px; padding: 4px 0; }
+.typing-dots span { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); animation: td 1.2s infinite; }
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes td { 0%,80%,100%{transform:translateY(0);} 40%{transform:translateY(-7px);} }
+.chat-suggestions { padding: 10px 18px 0; display: flex; gap: 7px; flex-wrap: wrap; }
+.chat-sug {
+  padding: 6px 13px; border-radius: 99px; border: 1px solid var(--border2);
+  background: var(--surface2); font-size: 12px; color: var(--text2); cursor: pointer;
+  transition: all 0.15s; white-space: nowrap;
+}
+.chat-sug:hover { border-color: var(--accent); color: var(--accent); }
+.chat-input-area { padding: 12px 14px; border-top: 1px solid var(--border); }
+.input-row { display: flex; gap: 8px; align-items: flex-end; }
+.chat-input {
+  flex: 1; resize: none; padding: 11px 14px; border-radius: var(--radius-sm);
+  background: var(--bg2); border: 1px solid var(--border2);
+  font-size: 14px; color: var(--text); outline: none; min-height: 44px; max-height: 110px;
+  transition: border-color 0.2s; line-height: 1.5;
+}
+.chat-input:focus { border-color: var(--accent); }
+.chat-input::placeholder { color: var(--text3); }
+.chat-send {
+  width: 44px; height: 44px; border-radius: var(--radius-sm); flex-shrink: 0;
+  background: var(--accent); border: none; color: #fff; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; cursor: pointer;
+}
+.chat-send:hover { filter: brightness(1.1); }
+.chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+.char-count { font-size: 11px; color: var(--text3); text-align: right; margin-top: 4px; }
+.char-count.warn { color: var(--accent); }
+.api-notice {
+  margin-bottom: 12px; padding: 12px 14px; border-radius: var(--radius-sm);
+  background: rgba(180,83,9,0.08); border: 1px solid rgba(180,83,9,0.2);
+  font-size: 13px; color: var(--gold); display: flex; align-items: flex-start; gap: 8px;
+}
+
+/* ═══════════════════════════════════════════
+   DARK MODE OVERRIDE
+═══════════════════════════════════════════ */
+[data-theme="dark"] .q-opt.correct { background: rgba(22,101,52,0.25) !important; color: #86efac; }
+[data-theme="dark"] .q-opt.wrong { background: rgba(153,27,27,0.25) !important; color: #fca5a5; }
+[data-theme="dark"] .q-feedback.correct-f { background: rgba(22,101,52,0.15); color: #86efac; }
+[data-theme="dark"] .q-feedback.wrong-f { background: rgba(153,27,27,0.15); color: #fca5a5; }
+
+/* ═══════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════ */
+footer {
+  border-top: 1px solid var(--border); padding: 20px 24px;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px; color: var(--text3); flex-wrap: wrap; gap: 8px;
+  background: var(--surface); transition: background var(--transition);
+}
+.footer-left { display: flex; align-items: center; gap: 8px; }
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+#toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 9000;
+  padding: 12px 20px; border-radius: var(--radius-sm);
+  background: var(--text); color: var(--bg);
+  font-size: 13px; font-weight: 500;
+  transform: translateY(80px); opacity: 0;
+  transition: all 0.3s; pointer-events: none;
+  max-width: 300px;
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .compare-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .hamburger { display: block; }
+  .section { padding: 20px 14px 40px; }
+  .compare-grid { grid-template-columns: 1fr; }
+  .gloss-grid { grid-template-columns: 1fr; }
+  .chat-window { height: 520px; }
+  .countdown-box { flex-direction: column; }
+  .quiz-nav { flex-direction: column; gap: 10px; }
+  .quiz-nav .btn { width: 100%; justify-content: center; }
+}
+@media (min-width: 768px) and (max-width: 1199px) {
+  .compare-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MOBILE MENU OVERLAY -->
+<div id="menuOverlay" onclick="closeMobileMenu()"></div>
+
+<!-- MOBILE MENU -->
+<div id="mobileMenu">
+  <button class="mob-link" id="mob-dashboard" onclick="showSection('dashboard',this);closeMobileMenu()"><i class="fa fa-home"></i> Home</button>
+  <button class="mob-link active" id="mob-timeline" onclick="showSection('timeline',this);closeMobileMenu()"><i class="fa fa-calendar-alt"></i> Timeline</button>
+  <button class="mob-link" id="mob-quiz" onclick="showSection('quiz',this);closeMobileMenu()"><i class="fa fa-brain"></i> Quiz</button>
+  <button class="mob-link" id="mob-glossary" onclick="showSection('glossary',this);closeMobileMenu()"><i class="fa fa-book"></i> Glossary</button>
+  <button class="mob-link" id="mob-compare" onclick="showSection('compare',this);closeMobileMenu()"><i class="fa fa-globe"></i> Compare</button>
+  <button class="mob-link" id="mob-chat" onclick="showSection('chat',this);closeMobileMenu()"><i class="fa fa-comments"></i> AI Chat</button>
+</div>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <div class="nav-logo">
+    <div class="nav-logo-icon">E</div>
+    ElectIQ
+  </div>
+  <div class="nav-links">
+    <button class="nav-link" id="nav-dashboard" onclick="showSection('dashboard',this)"><i class="fa fa-home"></i> Home</button>
+    <button class="nav-link active" id="nav-timeline" onclick="showSection('timeline',this)"><i class="fa fa-calendar-alt"></i> Timeline</button>
+    <button class="nav-link" id="nav-quiz" onclick="showSection('quiz',this)"><i class="fa fa-brain"></i> Quiz</button>
+    <button class="nav-link" id="nav-glossary" onclick="showSection('glossary',this)"><i class="fa fa-book"></i> Glossary</button>
+    <button class="nav-link" id="nav-compare" onclick="showSection('compare',this)"><i class="fa fa-globe"></i> Compare</button>
+    <button class="nav-link" id="nav-chat" onclick="showSection('chat',this)"><i class="fa fa-comments"></i> AI Chat</button>
+  </div>
+  <div class="nav-right">
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark mode" title="Toggle dark mode"></button>
+    <button class="hamburger" onclick="openMobileMenu()"><i class="fa fa-bars"></i></button>
+  </div>
+</nav>
+
+<div id="app">
+
+<!-- ═══════════════════════════════════════════
+     MODULE 1: TIMELINE
+═══════════════════════════════════════════ -->
+<section id="section-dashboard" class="section">
+  <div class="section-header">
+    <div class="badge" style="background:rgba(201,56,42,0.1);color:var(--accent)"><i class="fa fa-home"></i> Home</div>
+    <h2>Welcome to ElectIQ</h2>
+    <p>Your personal civic education hub — track your progress, explore modules, and learn democracy.</p>
+  </div>
+
+  <!-- Did You Know Card -->
+  <div id="dykCard" style="background:linear-gradient(135deg,var(--accent),#1e3a8a);color:#fff;border-radius:var(--radius);padding:24px 28px;margin-bottom:28px;display:flex;gap:16px;align-items:flex-start;box-shadow:var(--shadow-lg)">
+    <div style="font-size:32px;flex-shrink:0">💡</div>
+    <div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:1px;opacity:0.75;margin-bottom:4px">Did You Know?</div>
+      <div id="dykText" style="font-size:16px;line-height:1.6;font-weight:500"></div>
+      <button onclick="nextFact()" style="margin-top:12px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:8px;padding:6px 14px;font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif">Next Fact →</button>
+    </div>
+  </div>
+
+  <!-- Progress Stats -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:28px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;box-shadow:var(--shadow)">
+      <div style="font-size:32px;font-weight:800;font-family:'Syne',sans-serif;color:var(--accent)" id="dash-quiz-score">—</div>
+      <div style="font-size:13px;color:var(--text2);margin-top:4px">Best Quiz Score</div>
+      <div style="margin-top:10px;height:4px;background:var(--bg2);border-radius:99px"><div id="dash-quiz-bar" style="height:100%;background:var(--accent);border-radius:99px;width:0%;transition:width 0.8s ease"></div></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;box-shadow:var(--shadow)">
+      <div style="font-size:32px;font-weight:800;font-family:'Syne',sans-serif;color:var(--accent2)" id="dash-modules">0 / 5</div>
+      <div style="font-size:13px;color:var(--text2);margin-top:4px">Modules Explored</div>
+      <div style="margin-top:10px;height:4px;background:var(--bg2);border-radius:99px"><div id="dash-modules-bar" style="height:100%;background:var(--accent2);border-radius:99px;width:0%;transition:width 0.8s ease"></div></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;box-shadow:var(--shadow)">
+      <div style="font-size:32px;font-weight:800;font-family:'Syne',sans-serif;color:var(--accent3)" id="dash-glossary-count">29</div>
+      <div style="font-size:13px;color:var(--text2);margin-top:4px">Terms in Glossary</div>
+      <div style="margin-top:10px;height:4px;background:var(--bg2);border-radius:99px"><div style="height:100%;background:var(--accent3);border-radius:99px;width:100%"></div></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;box-shadow:var(--shadow)">
+      <div style="font-size:32px;font-weight:800;font-family:'Syne',sans-serif;color:var(--gold)" id="dash-countries">4</div>
+      <div style="font-size:13px;color:var(--text2);margin-top:4px">Countries Covered</div>
+      <div style="margin-top:10px;height:4px;background:var(--bg2);border-radius:99px"><div style="height:100%;background:var(--gold);border-radius:99px;width:100%"></div></div>
+    </div>
+  </div>
+
+  <!-- Achievements -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:28px;box-shadow:var(--shadow)">
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:18px;margin-bottom:16px"><i class="fa fa-trophy" style="color:var(--gold)"></i> Achievements</div>
+    <div id="achievementsList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px"></div>
+  </div>
+
+  <!-- Quick Access -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)">
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:18px;margin-bottom:16px"><i class="fa fa-rocket" style="color:var(--accent)"></i> Jump to Module</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px">
+      <button onclick="showSection('timeline',document.getElementById('nav-timeline'))" style="display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;color:var(--text);transition:all 0.2s" onmouseover="this.style.background='var(--accent)';this.style.color='#fff'" onmouseout="this.style.background='var(--bg2)';this.style.color='var(--text)'"><span style="font-size:20px">📅</span> Election Timeline</button>
+      <button onclick="showSection('quiz',document.getElementById('nav-quiz'))" style="display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;color:var(--text);transition:all 0.2s" onmouseover="this.style.background='var(--accent)';this.style.color='#fff'" onmouseout="this.style.background='var(--bg2)';this.style.color='var(--text)'"><span style="font-size:20px">🧠</span> Knowledge Quiz</button>
+      <button onclick="showSection('glossary',document.getElementById('nav-glossary'))" style="display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;color:var(--text);transition:all 0.2s" onmouseover="this.style.background='var(--accent)';this.style.color='#fff'" onmouseout="this.style.background='var(--bg2)';this.style.color='var(--text)'"><span style="font-size:20px">📖</span> Glossary</button>
+      <button onclick="showSection('compare',document.getElementById('nav-compare'))" style="display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;color:var(--text);transition:all 0.2s" onmouseover="this.style.background='var(--accent)';this.style.color='#fff'" onmouseout="this.style.background='var(--bg2)';this.style.color='var(--text)'"><span style="font-size:20px">🌐</span> Compare Systems</button>
+      <button onclick="showSection('chat',document.getElementById('nav-chat'))" style="display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;color:var(--text);transition:all 0.2s" onmouseover="this.style.background='var(--accent)';this.style.color='#fff'" onmouseout="this.style.background='var(--bg2)';this.style.color='var(--text)'"><span style="font-size:20px">💬</span> AI Chat</button>
+    </div>
+  </div>
+</section>
+
+<section id="section-timeline" class="section active">
+  <div class="section-header">
+    <div class="badge" style="background:rgba(201,56,42,0.1);color:var(--accent)">
+      <i class="fa fa-calendar-alt"></i> Interactive Timeline
+    </div>
+    <h2>Election Process Timeline</h2>
+    <p>Explore step-by-step how elections unfold in major democracies. Click any stage to expand details.</p>
+  </div>
+  <div class="countdown-box" id="countdownBox">
+    <div>
+      <div class="countdown-label">⏱ Next Major Election Countdown</div>
+      <div id="countdownTitle" style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;"></div>
+    </div>
+    <div class="countdown-digits" id="countdownDigits"></div>
+  </div>
+  <div class="country-tabs" id="countryTabs">
+    <button class="country-tab active" onclick="loadTimeline('usa',this)">🇺🇸 United States</button>
+    <button class="country-tab" onclick="loadTimeline('india',this)">🇮🇳 India</button>
+    <button class="country-tab" onclick="loadTimeline('uk',this)">🇬🇧 United Kingdom</button>
+    <button class="country-tab" onclick="loadTimeline('germany',this)">🇩🇪 Germany</button>
+  </div>
+  <div class="tl-wrapper" id="timelineWrap"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     MODULE 2: QUIZ
+═══════════════════════════════════════════ -->
+<section id="section-quiz" class="section">
+  <div class="section-header">
+    <div class="badge" style="background:rgba(30,58,138,0.1);color:var(--accent2)">
+      <i class="fa fa-brain"></i> Knowledge Test
+    </div>
+    <h2>Election Quiz</h2>
+    <p>Test your knowledge of electoral systems, voting rights, and democratic processes.</p>
+  </div>
+  <div class="quiz-container">
+    <div id="quizMain">
+      <div class="quiz-progress-wrap">
+        <div class="quiz-meta">
+          <span id="qCounter">Question 1 of 10</span>
+          <span class="quiz-best" id="bestScore"><i class="fa fa-trophy"></i> Best: —</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+      </div>
+      <div class="card quiz-card">
+        <div class="q-num" id="qNum">QUESTION 01</div>
+        <div class="q-text" id="qText"></div>
+        <div class="q-opts" id="qOpts"></div>
+        <div class="q-feedback" id="qFeedback"></div>
+      </div>
+      <div class="quiz-nav">
+        <button class="btn btn-outline" onclick="prevQ()"><i class="fa fa-arrow-left"></i> Previous</button>
+        <span id="scoreDisplay" style="font-weight:600;color:var(--accent)">Score: 0 / 0</span>
+        <button class="btn btn-primary" id="nextBtn" onclick="nextQ()" disabled><i class="fa fa-arrow-right"></i> Next</button>
+      </div>
+    </div>
+    <div class="card" id="scoreCard">
+      <div class="score-ring">
+        <svg width="130" height="130" viewBox="0 0 130 130">
+          <circle cx="65" cy="65" r="54" fill="none" stroke="var(--bg2)" stroke-width="10"/>
+          <circle id="ringArc" cx="65" cy="65" r="54" fill="none" stroke="var(--accent)" stroke-width="10"
+            stroke-linecap="round" stroke-dasharray="339.3" stroke-dashoffset="339.3"
+            style="transition:stroke-dashoffset 1.2s ease"/>
+        </svg>
+        <div class="score-ring-num" id="scoreNum">0/10</div>
+      </div>
+      <div class="score-grade" id="scoreGrade">—</div>
+      <div class="score-msg" id="scoreMsg"></div>
+      <div class="export-btns">
+        <button class="btn btn-primary" onclick="restartQuiz()"><i class="fa fa-redo"></i> Try Again</button>
+        <button class="btn btn-outline" onclick="exportQuiz()"><i class="fa fa-download"></i> Export Results</button>
+        <button class="btn btn-outline" onclick="shareScore()"><i class="fa fa-share-alt"></i> Share Score</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     MODULE 3: GLOSSARY
+═══════════════════════════════════════════ -->
+<section id="section-glossary" class="section">
+  <div class="section-header">
+    <div class="badge" style="background:rgba(180,83,9,0.1);color:var(--gold)">
+      <i class="fa fa-book"></i> Reference
+    </div>
+    <h2>Election Glossary</h2>
+    <p>Master the vocabulary of democracy. Search and filter by category.</p>
+  </div>
+  <div class="gloss-controls">
+    <div class="search-wrap">
+      <i class="fa fa-search search-icon"></i>
+      <input class="gloss-search" type="text" id="glossSearch" placeholder="Search terms, definitions…" oninput="debounceGloss()" aria-label="Search glossary">
+    </div>
+    <div class="gloss-cats">
+      <button class="cat-btn active" onclick="setGlossCat('all',this)">All</button>
+      <button class="cat-btn" onclick="setGlossCat('process',this)">Process</button>
+      <button class="cat-btn" onclick="setGlossCat('legal',this)">Legal</button>
+      <button class="cat-btn" onclick="setGlossCat('voter',this)">Voter</button>
+      <button class="cat-btn" onclick="setGlossCat('system',this)">System</button>
+    </div>
+  </div>
+  <div class="gloss-stats" id="glossStats"></div>
+  <div class="gloss-grid" id="glossGrid"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     MODULE 4: COMPARE
+═══════════════════════════════════════════ -->
+<section id="section-compare" class="section">
+  <div class="section-header">
+    <div class="badge" style="background:rgba(15,118,110,0.1);color:var(--accent3)">
+      <i class="fa fa-globe"></i> Global Comparison
+    </div>
+    <h2>Compare Electoral Systems</h2>
+    <p>See how the world's largest democracies run their elections side by side.</p>
+  </div>
+  <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+    <button class="btn btn-secondary" onclick="highlightDiffs()"><i class="fa fa-lightbulb"></i> Highlight Differences</button>
+    <button class="btn btn-outline" onclick="exportComparison()"><i class="fa fa-download"></i> Export as PNG</button>
+  </div>
+  <div class="compare-grid" id="compareGrid"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     MODULE 5: CHAT
+═══════════════════════════════════════════ -->
+<section id="section-chat" class="section">
+  <div class="section-header">
+    <div class="badge" style="background:rgba(15,118,110,0.1);color:var(--accent3)">
+      <i class="fa fa-robot"></i> AI Powered
+    </div>
+    <h2>AI Election Guide</h2>
+    <p>Ask anything about elections, voting systems, democracy, and civic processes.</p>
+  </div>
+  <div class="chat-layout">
+    <div id="apiNotice" class="api-notice" style="display:none">
+      <i class="fa fa-key" style="margin-top:2px;flex-shrink:0"></i>
+      <span>No API key detected. Responses are in demo mode. To enable real AI, set <code style="font-family:monospace;font-size:12px">ANTHROPIC_API_KEY</code> in the config at the top of the script.</span>
+    </div>
+    <div class="chat-window">
+      <div class="chat-topbar">
+        <div class="chat-agent">
+          <div class="agent-avatar">E</div>
+          <div class="agent-info">
+            <div class="agent-name">ElectIQ AI</div>
+            <div class="agent-status">Online — Ready to help</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="chat-clear" onclick="clearChat()" title="Clear conversation"><i class="fa fa-trash"></i> Clear</button>
+          <button class="btn btn-outline btn-sm" onclick="saveChatHistory()"><i class="fa fa-download"></i> Save</button>
+        </div>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-suggestions" id="chatSugs">
+        <button class="chat-sug" onclick="suggestMsg(this)">🗳️ How do elections work in USA?</button>
+        <button class="chat-sug" onclick="suggestMsg(this)">📊 What is voter turnout?</button>
+        <button class="chat-sug" onclick="suggestMsg(this)">⚖️ Explain gerrymandering</button>
+        <button class="chat-sug" onclick="suggestMsg(this)">🌍 Compare US vs UK elections</button>
+      </div>
+      <div class="chat-input-area">
+        <div class="input-row">
+          <textarea class="chat-input" id="chatInput" rows="1"
+            placeholder="Ask about elections, voting, democracy…"
+            oninput="handleInputResize();updateCharCount()"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
+            maxlength="2000" aria-label="Chat input"></textarea>
+          <button class="chat-send" id="sendBtn" onclick="sendMessage()" aria-label="Send message">
+            <i class="fa fa-paper-plane"></i>
+          </button>
+        </div>
+        <div class="char-count" id="charCount">0 / 2000</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /#app -->
+
+<footer>
+  <div class="footer-left">
+    <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:14px">ElectIQ</span>
+    <span>© 2025 — Election Intelligence Platform</span>
+  </div>
+  <div id="lastSaved" style="display:none"><i class="fa fa-clock"></i> Last exported: <span id="lastSavedTime"></span></div>
+  <div>AI responses for educational purposes only. Verify with official sources.</div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════
+   CONFIG — USER: Add your Anthropic API key here
+═══════════════════════════════════════════ */
+const ANTHROPIC_API_KEY = ''; // <-- Paste your API key here
+
+/* ═══════════════════════════════════════════
+   GLOBAL STATE
+═══════════════════════════════════════════ */
+const state = {
+  darkMode: false,
+  currentCountry: 'usa',
+  quiz: {
+    currentQuestion: 0,
+    score: 0,
+    answers: [],
+    answered: false,
+    bestScore: parseInt(localStorage.getItem('electiq_best') || '-1')
+  },
+  glossary: { searchTerm: '', category: 'all' },
+  chat: { messages: [], isLoading: false },
+  activeModule: 'timeline',
+  compareHighlight: false
+};
+
+/* ═══════════════════════════════════════════
+   THEME
+═══════════════════════════════════════════ */
+function initTheme() {
+  const saved = localStorage.getItem('electiq_theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const dark = saved ? saved === 'dark' : prefersDark;
+  setTheme(dark);
+}
+function setTheme(dark) {
+  state.darkMode = dark;
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  localStorage.setItem('electiq_theme', dark ? 'dark' : 'light');
+}
+function toggleTheme() { setTheme(!state.darkMode); }
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-link, .mob-link').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  // activate desktop + mobile nav
+  const navBtn = document.getElementById('nav-' + id);
+  const mobBtn = document.getElementById('mob-' + id);
+  if (navBtn) navBtn.classList.add('active');
+  if (mobBtn) mobBtn.classList.add('active');
+  state.activeModule = id;
+  // track visited sections for achievements
+  if (!state.visitedSections) state.visitedSections = new Set();
+  state.visitedSections.add(id);
+  // lazy init
+  if (id === 'quiz' && !state.quiz.initialized) initQuiz();
+  if (id === 'glossary' && !state.glossary.initialized) initGlossary();
+  if (id === 'compare' && !state.compare.initialized) initCompare();
+  if (id === 'chat' && !state.chat.initialized) initChat();
+  if (id === 'dashboard') updateDashboard();
+}
+function openMobileMenu() {
+  document.getElementById('mobileMenu').classList.add('open');
+  document.getElementById('menuOverlay').classList.add('show');
+}
+function closeMobileMenu() {
+  document.getElementById('mobileMenu').classList.remove('open');
+  document.getElementById('menuOverlay').classList.remove('show');
+}
+state.compare = { initialized: false };
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+function showToast(msg, duration = 3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+/* ═══════════════════════════════════════════
+   MODULE 1: TIMELINE DATA & RENDER
+═══════════════════════════════════════════ */
+const timelineData = {
+  usa: {
+    name: 'United States', election: 'Presidential Election',
+    nextDate: new Date('2028-11-07'),
+    steps: [
+      { phase:'announce', icon:'📢', tag:'Announcement', title:'Election Officially Announced', time:'~18 months before Election Day', status:'upcoming', detail:'The Federal Election Commission (FEC) officially opens the filing period. The two major parties begin the process of selecting their presidential nominees. The public election calendar is set.' },
+      { phase:'filing', icon:'📄', tag:'Filing & Primaries', title:'Candidate Filing & Primary Elections', time:'January – June (election year)', status:'upcoming', detail:'Candidates file with the FEC. Each state holds a primary or caucus where party members vote for their preferred candidate. Delegates are awarded proportionally or winner-take-all depending on the state. Iowa caucus and New Hampshire primary are traditionally first.' },
+      { phase:'filing', icon:'🏛️', tag:'Conventions', title:'National Party Conventions', time:'Summer of election year (July–August)', status:'upcoming', detail:'Each party holds its national convention, where delegates formally nominate the presidential and vice-presidential candidates. Party platforms are adopted. The nominee delivers an acceptance speech.' },
+      { phase:'campaign', icon:'📣', tag:'Campaign', title:'General Election Campaign Period', time:'Post-convention through Election Day', status:'upcoming', detail:'The nominees campaign nationwide with rallies, advertisements, and debates. Up to three presidential debates are held, moderated by journalists. Campaign spending is regulated by the FEC. The Electoral College system means campaigns focus heavily on swing states.' },
+      { phase:'voting', icon:'🗳️', tag:'Voting', title:'Election Day', time:'First Tuesday after November 1st', status:'upcoming', detail:'Polls are open for 12–13 hours depending on state law. Voters go to assigned polling places or submit absentee/mail-in ballots (deadlines vary by state). Voter ID requirements differ by state. Election officials count votes in a transparent process with observers.' },
+      { phase:'results', icon:'📊', tag:'Results', title:'Vote Counting & Electoral College Vote', time:'November through December', status:'upcoming', detail:'Each state certifies its popular vote results and awards its Electoral College votes. A candidate needs 270 out of 538 electoral votes to win. Electors formally cast their votes in December. Congress certifies the results in January.' },
+      { phase:'results', icon:'🎉', tag:'Inauguration', title:'Presidential Inauguration', time:'January 20th', status:'upcoming', detail:'The winning candidate is sworn in as President of the United States by the Chief Justice of the Supreme Court on the steps of the Capitol Building. The formal transfer of power is complete.' },
+    ]
+  },
+  india: {
+    name: 'India', election: 'General Election (Lok Sabha)',
+    nextDate: new Date('2029-04-01'),
+    steps: [
+      { phase:'announce', icon:'📢', tag:'Announcement', title:'Election Commission Announces Schedule', time:'~60–90 days before polling begins', status:'upcoming', detail:'The Election Commission of India (ECI) announces the election schedule including phases, dates, and the Model Code of Conduct (MCC), which takes immediate effect. The MCC prohibits the use of government resources for campaigning.' },
+      { phase:'filing', icon:'📝', tag:'Voter Roll', title:'Final Electoral Roll Revision', time:'Months before polling', status:'upcoming', detail:'The ECI completes the final revision of electoral rolls. Citizens can check their voter registration through the National Voter Service Portal (NVSP). Voter ID cards (EPIC) are issued to new voters.' },
+      { phase:'filing', icon:'📋', tag:'Filing', title:'Candidate Nomination & Scrutiny', time:'14–21 days before polling in each phase', status:'upcoming', detail:'Candidates file nomination papers at the Returning Officer\'s office. A security deposit is required (₹25,000 for Lok Sabha). Nominations are scrutinized for eligibility. Withdrawal deadline is set. Final list of candidates is published.' },
+      { phase:'campaign', icon:'📣', tag:'Campaign', title:'Campaign Period', time:'After nomination withdrawal until 48 hours before polling', status:'upcoming', detail:'Political parties campaign across constituencies. Campaign silence period of 48 hours before polling. Spending limits strictly enforced (₹95 lakh per Lok Sabha constituency). Electronic media and social media advertising regulated.' },
+      { phase:'voting', icon:'🗳️', tag:'Voting', title:'Multi-Phase Polling', time:'As per ECI schedule (April–May typically)', status:'upcoming', detail:'India\'s massive electorate (~960M+ voters) requires voting in multiple phases across different states. Electronic Voting Machines (EVMs) are used with a Voter Verifiable Paper Audit Trail (VVPAT). Polling stations within 2km of every voter. Security forces deployed in sensitive areas.' },
+      { phase:'results', icon:'📊', tag:'Results', title:'Vote Counting & Results Declaration', time:'Counting Day (post all phases)', status:'upcoming', detail:'Votes are counted at designated counting centers under strict security. ECI announces results constituency by constituency. The party or coalition winning a majority (272+ seats) is invited by the President to form the government.' },
+      { phase:'results', icon:'✅', tag:'Government', title:'Government Formation & Swearing-In', time:'Within weeks of results', status:'upcoming', detail:'The President invites the leader of the majority party or coalition to form the government. The Prime Minister and Cabinet are sworn in at the Rashtrapati Bhavan (President\'s House) in New Delhi.' },
+    ]
+  },
+  uk: {
+    name: 'United Kingdom', election: 'UK General Election',
+    nextDate: new Date('2029-05-02'),
+    steps: [
+      { phase:'announce', icon:'📢', tag:'Announcement', title:'Parliament Dissolved', time:'~25 working days before election', status:'upcoming', detail:'Under the Dissolution and Calling of Parliament Act 2022, the Prime Minister requests the King to dissolve Parliament. The Dissolution Order is made by the King on advice of the PM. Writs are then sent to Returning Officers in each of the 650 constituencies.' },
+      { phase:'filing', icon:'📝', tag:'Registration', title:'Voter Registration Deadline', time:'~12 working days before election', status:'upcoming', detail:'Citizens register to vote through their local Electoral Registration Office or online at gov.uk. The deadline is approximately 12 working days before polling. Postal/proxy vote applications also have a deadline. British, Irish, and qualifying Commonwealth citizens resident in the UK can register.' },
+      { phase:'filing', icon:'📋', tag:'Filing', title:'Candidate Nomination Period', time:'Nominations close ~19 working days before election', status:'upcoming', detail:'Prospective candidates must gather 10 nomination signatures from registered voters in the constituency and pay a £500 deposit (refunded if they win 5%+ of the vote). Candidates can stand independently or for a political party.' },
+      { phase:'campaign', icon:'📣', tag:'Campaign', title:'Short Campaign Period', time:'~25 working days before election', status:'upcoming', detail:'Strict constituency spending limits apply (varies ~£15,000–£21,000 per candidate). Parties have national spending limits too. Public broadcasters (BBC, ITV) provide free airtime for party election broadcasts. Leaders\' debates are by convention but not legally required.' },
+      { phase:'voting', icon:'🗳️', tag:'Voting', title:'Polling Day (Election Day)', time:'Thursday (by convention)', status:'upcoming', detail:'Polls are open 7am–10pm. The UK uses First-Past-the-Post (FPTP): voters mark a single X next to their preferred candidate. The candidate with the most votes in each constituency wins that seat, regardless of overall majority. Postal votes accepted.' },
+      { phase:'results', icon:'📊', tag:'Results', title:'Constituency Results & Party Majority', time:'Overnight after polls close', status:'upcoming', detail:'650 constituencies return results through the night, announced by Returning Officers. Major TV networks project an overall winner. A party needs 326 of 650 seats for an outright majority. If no party wins outright, a hung parliament results.' },
+      { phase:'results', icon:'👑', tag:'Government', title:'New Prime Minister Appointed', time:'Day after polling (typically)', status:'upcoming', detail:'The outgoing PM visits Buckingham Palace and tenders their resignation to the King. The leader of the party able to command a majority in the Commons is invited to form a government. They then appoint their Cabinet.' },
+    ]
+  },
+  germany: {
+    name: 'Germany', election: 'Federal Election (Bundestagswahl)',
+    nextDate: new Date('2029-09-01'),
+    steps: [
+      { phase:'announce', icon:'📢', tag:'Announcement', title:'Bundestag Dissolved / Election Called', time:'Up to 60 days before election', status:'upcoming', detail:'The Federal President (on advice of the Chancellor) dissolves the Bundestag or at end of a 4-year term. The Federal Returning Officer (Bundeswahlleiter) sets the election date. Elections must be held within 60 days of dissolution.' },
+      { phase:'filing', icon:'📝', tag:'Registration', title:'Automatic Registration & Voter Notification', time:'~6 weeks before election', status:'upcoming', detail:'Germany has automatic voter registration through the Einwohnermeldeamt (population registry). Citizens receive postal notification cards (Wahlbenachrichtigung) approximately 6 weeks before the election date, confirming their polling station.' },
+      { phase:'filing', icon:'📋', tag:'Filing', title:'Party Lists & Constituency Candidates Filed', time:'66 days before election deadline', status:'upcoming', detail:'Parties submit their state lists (Landeslisten) and direct constituency candidates. Minor parties must provide supporting signatures: 200 per constituency candidate and 200 per state list. The Federal Returning Officer reviews all submissions.' },
+      { phase:'campaign', icon:'📣', tag:'Campaign', title:'Official Campaign Period', time:'~8 weeks before election', status:'upcoming', detail:'Parties campaign with posters, rallies, TV advertising, and social media. Public broadcasters provide equal airtime for party political broadcasts. The Federal Election Committee oversees compliance. Final TV debate (Triell or Duell) between leading candidates.' },
+      { phase:'voting', icon:'🗳️', tag:'Voting', title:'Federal Election Day (Sunday)', time:'Last Sunday of September/October', status:'upcoming', detail:'Germany votes on Sundays. Citizens cast TWO votes: Erststimme (first vote) for a direct constituency candidate using FPTP, and Zweitstimme (second vote) for a party list — this determines seat allocation. Postal voting (Briefwahl) is widely used (~40% of votes).' },
+      { phase:'results', icon:'📊', tag:'Results', title:'Seat Allocation (Sainte-Laguë Method)', time:'Election night and weeks after', status:'upcoming', detail:'The second vote determines proportional seat allocation. Parties must clear a 5% threshold nationally or win 3 direct constituencies. Overhang and leveling seats are calculated to maintain proportionality. Final seat count often differs from projections due to overhang.' },
+      { phase:'results', icon:'🏛️', tag:'Government', title:'Coalition Negotiations & Chancellor Elected', time:'Weeks to months after election', status:'upcoming', detail:'Coalition negotiations (Koalitionsverhandlungen) begin between parties. Once a coalition agreement (Koalitionsvertrag) is signed, the Bundestag elects the Chancellor (Bundeskanzler) by absolute majority. The Federal President formally appoints the Chancellor and Cabinet (Bundesminister).' },
+    ]
+  }
+};
+
+function renderTimeline(country) {
+  const data = timelineData[country];
+  const wrap = document.getElementById('timelineWrap');
+  wrap.innerHTML = '';
+  data.steps.forEach((step, i) => {
+    const div = document.createElement('div');
+    div.className = `tl-item phase-${step.phase}`;
+    div.innerHTML = `
+      <div class="tl-dot"></div>
+      <div class="tl-card" onclick="this.classList.toggle('expanded')" aria-expanded="false" role="button" tabindex="0">
+        <div class="tl-top">
+          <div>
+            <div class="tl-phase">${step.icon} ${step.tag}</div>
+            <div class="tl-title">${step.title}</div>
+            <div class="tl-time"><i class="fa fa-clock" style="font-size:10px"></i> ${step.time}</div>
+          </div>
+          <span class="tl-status status-${step.status}">${step.status.charAt(0).toUpperCase()+step.status.slice(1)}</span>
+        </div>
+        <div class="tl-detail">
+          <p>${step.detail}</p>
+          <div class="tl-actions">
+            <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();jumpToChat('Tell me more about: ${step.title} in the ${data.name} election process')">
+              <i class="fa fa-robot"></i> Ask AI ↗
+            </button>
+          </div>
+        </div>
+      </div>`;
+    wrap.appendChild(div);
+    div.querySelector('.tl-card').addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.target.classList.toggle('expanded'); }
+    });
+  });
+}
+
+function loadTimeline(country, btn) {
+  state.currentCountry = country;
+  document.querySelectorAll('.country-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateCountdown(country);
+  renderTimeline(country);
+}
+
+function updateCountdown(country) {
+  const data = timelineData[country];
+  const titleEl = document.getElementById('countdownTitle');
+  const digitsEl = document.getElementById('countdownDigits');
+  titleEl.textContent = `${data.name} — ${data.election}`;
+  function tick() {
+    const now = new Date();
+    const diff = data.nextDate - now;
+    if (diff <= 0) { digitsEl.innerHTML = '<span style="color:var(--accent3)">Election Day!</span>'; return; }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    digitsEl.innerHTML = [['Days',d],['Hours',h],['Mins',m],['Secs',s]].map(([l,v]) =>
+      `<div class="cd-unit"><span class="cd-num">${String(v).padStart(2,'0')}</span><span class="cd-lbl">${l}</span></div>`
+    ).join('');
+  }
+  tick();
+  if (window._cdInterval) clearInterval(window._cdInterval);
+  window._cdInterval = setInterval(tick, 1000);
+}
+
+// Init timeline
+renderTimeline('usa');
+updateCountdown('usa');
+
+/* ═══════════════════════════════════════════
+   MODULE 2: QUIZ
+═══════════════════════════════════════════ */
+const quizQuestions = [
+  { q: 'What is the minimum voting age in most democracies worldwide?', opts: ['16 years','18 years','21 years','25 years'], correct: 1, exp: '18 is the standard voting age in over 90% of countries, including the US, UK, India, Germany, and most of the world. Some countries like Scotland and Austria allow voting at 16.' },
+  { q: 'What does "FPTP" (First-Past-the-Post) mean in elections?', opts: ['The fastest candidate wins','Candidate with most votes wins regardless of majority','Top two candidates go to a runoff','Seats allocated proportionally to votes'], correct: 1, exp: 'In FPTP (also called "winner-takes-all"), the candidate who receives the most votes in a constituency wins — even without an absolute majority. Used in the USA, UK, Canada, and India.' },
+  { q: 'Which country uses the Electoral College to elect its president?', opts: ['France','Germany','United States','Brazil'], correct: 2, exp: 'The United States uses an Electoral College system with 538 electors. A candidate needs 270 electoral votes to win the presidency. Each state\'s electoral votes are equal to its total Congressional representation.' },
+  { q: 'What is "voter turnout"?', opts: ['Total number of registered voters','Percentage of eligible voters who actually voted','Margin of victory in an election','Number of candidates on the ballot'], correct: 1, exp: 'Voter turnout is the percentage of eligible voters who actually cast a ballot in a given election. It\'s a key indicator of democratic health. Australia (compulsory voting) regularly achieves 90%+ turnout.' },
+  { q: 'Which constitutional amendment gave women the right to vote in the United States?', opts: ['13th Amendment','15th Amendment','19th Amendment','26th Amendment'], correct: 2, exp: 'The 19th Amendment, ratified on August 18, 1920, prohibits denying the right to vote on the basis of sex. It was a landmark victory of the women\'s suffrage movement led by figures like Susan B. Anthony and Elizabeth Cady Stanton.' },
+  { q: 'What is a "hung parliament"?', opts: ['A parliament that has been suspended','When no party wins an absolute majority','A parliament in constitutional crisis','When the election result is disputed'], correct: 1, exp: 'A hung parliament occurs when no single political party wins enough seats to hold an absolute majority. This typically leads to coalition negotiations or a minority government. The UK experienced hung parliaments in 2010 and 2017.' },
+  { q: 'What is "gerrymandering"?', opts: ['Voter suppression tactics','Manipulating district boundaries to favor a party','Campaign financing fraud','Blocking candidates from filing'], correct: 1, exp: 'Gerrymandering is the practice of redrawing electoral district boundaries to give one party an unfair advantage. It was named after Governor Elbridge Gerry of Massachusetts, whose 1812 redistricting created a salamander-shaped district.' },
+  { q: 'Which country has compulsory voting (fines for not voting)?', opts: ['Canada','United Kingdom','Sweden','Australia'], correct: 3, exp: 'Australia introduced compulsory voting in federal elections in 1924. Eligible voters who fail to vote without a valid reason face a fine (currently $20 AUD for a first offense). This results in consistently high turnout of 90%+.' },
+  { q: 'What is the primary role of an Election Commission?', opts: ['To select winning candidates','To administer and oversee elections impartially','To write election laws','To manage campaign finances only'], correct: 1, exp: 'Election commissions are independent constitutional bodies that administer and oversee the electoral process to ensure free, fair, and transparent elections. Examples include the FEC (USA), ECI (India), and Electoral Commission (UK).' },
+  { q: 'What is a "referendum"?', opts: ['A recall election for a sitting official','A direct vote by citizens on a specific policy or question','A vote to select party candidates','A runoff between top two candidates'], correct: 1, exp: 'A referendum is a direct vote in which the entire electorate (rather than elected representatives) is invited to vote on a particular proposal. Famous examples include Brexit (UK, 2016) and the Good Friday Agreement (Ireland, 1998).' },
+];
+
+function initQuiz() {
+  state.quiz.initialized = true;
+  state.quiz.currentQuestion = 0;
+  state.quiz.score = 0;
+  state.quiz.answers = [];
+  updateBestScore();
+  renderQuestion();
+}
+
+function updateBestScore() {
+  const best = state.quiz.bestScore;
+  const el = document.getElementById('bestScore');
+  if (best >= 0) el.innerHTML = `<i class="fa fa-trophy"></i> Best: ${best}/10`;
+  else el.innerHTML = `<i class="fa fa-trophy"></i> Best: —`;
+}
+
+function renderQuestion() {
+  state.quiz.answered = false;
+  const qi = state.quiz.currentQuestion;
+  const q = quizQuestions[qi];
+  const pct = (qi / quizQuestions.length) * 100;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('qCounter').textContent = `Question ${qi + 1} of ${quizQuestions.length}`;
+  document.getElementById('qNum').textContent = `QUESTION ${String(qi+1).padStart(2,'0')}`;
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('qFeedback').className = 'q-feedback';
+  document.getElementById('qFeedback').textContent = '';
+  document.getElementById('nextBtn').disabled = true;
+  const scoreAnswered = state.quiz.answers.filter(a => a !== undefined).length;
+  document.getElementById('scoreDisplay').textContent = `Score: ${state.quiz.score} / ${scoreAnswered}`;
+  const opts = document.getElementById('qOpts');
+  opts.innerHTML = '';
+  const markers = ['A','B','C','D'];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'q-opt';
+    btn.innerHTML = `<span class="opt-marker">${markers[i]}</span>${opt}`;
+    btn.setAttribute('aria-label', `Option ${markers[i]}: ${opt}`);
+    btn.onclick = () => selectAnswer(i);
+    // If already answered in this session
+    if (state.quiz.answers[qi] !== undefined) {
+      btn.disabled = true;
+      if (i === q.correct) btn.classList.add('correct');
+      else if (i === state.quiz.answers[qi]) btn.classList.add('wrong');
+    }
+    opts.appendChild(btn);
+  });
+  if (state.quiz.answers[qi] !== undefined) {
+    showFeedback(state.quiz.answers[qi] === q.correct, q.exp);
+    document.getElementById('nextBtn').disabled = false;
+  }
+}
+
+function selectAnswer(idx) {
+  if (state.quiz.answered) return;
+  state.quiz.answered = true;
+  const qi = state.quiz.currentQuestion;
+  const q = quizQuestions[qi];
+  state.quiz.answers[qi] = idx;
+  const opts = document.querySelectorAll('.q-opt');
+  opts.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx) btn.classList.add('wrong');
+  });
+  const correct = idx === q.correct;
+  if (correct) state.quiz.score++;
+  const scoreAnswered = state.quiz.answers.filter(a => a !== undefined).length;
+  document.getElementById('scoreDisplay').textContent = `Score: ${state.quiz.score} / ${scoreAnswered}`;
+  showFeedback(correct, q.exp);
+  document.getElementById('nextBtn').disabled = false;
+  // Screen reader announcement
+  const announce = document.createElement('div');
+  announce.setAttribute('role','alert'); announce.setAttribute('aria-live','polite');
+  announce.style.cssText = 'position:absolute;left:-9999px';
+  announce.textContent = correct ? 'Correct! ' + q.exp : 'Incorrect. ' + q.exp;
+  document.body.appendChild(announce);
+  setTimeout(() => document.body.removeChild(announce), 3000);
+}
+
+function showFeedback(correct, explanation) {
+  const fb = document.getElementById('qFeedback');
+  fb.className = 'q-feedback show ' + (correct ? 'correct-f' : 'wrong-f');
+  fb.innerHTML = `<strong>${correct ? '✅ Correct!' : '❌ Incorrect.'}</strong> ${explanation}`;
+}
+
+function nextQ() {
+  if (state.quiz.currentQuestion < quizQuestions.length - 1) {
+    state.quiz.currentQuestion++;
+    renderQuestion();
+  } else {
+    showScoreCard();
+  }
+}
+
+function prevQ() {
+  if (state.quiz.currentQuestion > 0) {
+    state.quiz.currentQuestion--;
+    renderQuestion();
+  }
+}
+
+function showScoreCard() {
+  document.getElementById('quizMain').style.display = 'none';
+  const sc = document.getElementById('scoreCard');
+  sc.classList.add('show');
+  const s = state.quiz.score;
+  const total = quizQuestions.length;
+  const pct = s / total;
+  // Update ring
+  const circ = 2 * Math.PI * 54; // ~339.3
+  const offset = circ * (1 - pct);
+  setTimeout(() => {
+    document.getElementById('ringArc').style.strokeDashoffset = offset;
+  }, 100);
+  document.getElementById('scoreNum').innerHTML = `${s}<span class="score-ring-label">/${total}</span>`;
+  const grades = [
+    { min: 10, grade: '🏆 Perfect!', msg: 'Outstanding! You\'re a true election expert. Share your perfect score!' },
+    { min: 8, grade: '⭐ Excellent!', msg: 'Great knowledge of electoral systems and democracy!' },
+    { min: 6, grade: '👍 Good Job!', msg: 'Solid understanding! Review the glossary to improve further.' },
+    { min: 4, grade: '📚 Keep Learning', msg: 'Check out the Timeline and Glossary sections to build your knowledge.' },
+    { min: 0, grade: '🌱 Just Starting', msg: 'Every expert started somewhere. Explore the platform and try again!' },
+  ];
+  const grade = grades.find(g => s >= g.min);
+  document.getElementById('scoreGrade').textContent = grade.grade;
+  document.getElementById('scoreMsg').textContent = grade.msg;
+  // Best score
+  if (s > state.quiz.bestScore) {
+    state.quiz.bestScore = s;
+    localStorage.setItem('electiq_best', s);
+    updateBestScore();
+    if (s === 10) launchConfetti();
+    showToast(s === 10 ? '🏆 Perfect score! New record!' : `🎉 New best score: ${s}/10!`);
+  }
+}
+
+function restartQuiz() {
+  document.getElementById('scoreCard').classList.remove('show');
+  document.getElementById('quizMain').style.display = '';
+  document.getElementById('ringArc').style.strokeDashoffset = '339.3';
+  state.quiz.currentQuestion = 0;
+  state.quiz.score = 0;
+  state.quiz.answers = [];
+  state.quiz.answered = false;
+  updateBestScore();
+  renderQuestion();
+}
+
+function launchConfetti() {
+  const wrap = document.createElement('div');
+  wrap.className = 'confetti-wrap';
+  document.body.appendChild(wrap);
+  const colors = ['#c9382a','#1e3a8a','#0f766e','#b45309','#7c3aed','#059669'];
+  for (let i = 0; i < 120; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    const x = Math.random() * 100;
+    const delay = Math.random() * 2;
+    const dur = 2.5 + Math.random() * 2;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const size = 6 + Math.random() * 8;
+    const shape = Math.random() > 0.5 ? '50%' : '2px';
+    p.style.cssText = `left:${x}vw;top:-10px;background:${color};width:${size}px;height:${size}px;border-radius:${shape};animation-duration:${dur}s;animation-delay:${delay}s;opacity:0.9`;
+    wrap.appendChild(p);
+  }
+  setTimeout(() => document.body.removeChild(wrap), 5500);
+}
+
+function exportQuiz() {
+  const results = {
+    date: new Date().toISOString(),
+    score: `${state.quiz.score}/${quizQuestions.length}`,
+    percentage: Math.round((state.quiz.score / quizQuestions.length) * 100) + '%',
+    questions: quizQuestions.map((q, i) => ({
+      question: q.q,
+      yourAnswer: state.quiz.answers[i] !== undefined ? q.opts[state.quiz.answers[i]] : 'Not answered',
+      correctAnswer: q.opts[q.correct],
+      correct: state.quiz.answers[i] === q.correct
+    }))
+  };
+  const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'electiq-quiz-results.json'; a.click();
+  updateLastSaved();
+  showToast('📥 Quiz results exported!');
+}
+
+function shareScore() {
+  const s = state.quiz.score;
+  const text = `I scored ${s}/10 (${Math.round(s/10*100)}%) on the ElectIQ Election Quiz! 🗳️ Test your democracy knowledge at ElectIQ. Can you beat me?`;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => showToast('📋 Score copied to clipboard!'));
+  } else {
+    const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('📋 Score copied!');
+  }
+}
+
+/* ═══════════════════════════════════════════
+   MODULE 3: GLOSSARY DATA & RENDER
+═══════════════════════════════════════════ */
+const glossTerms = [
+  // Process
+  { term:'Announcement', cat:'process', def:'The official declaration by the Head of State or electoral authority that an election will take place. Sets the start of the formal election calendar and triggers legal obligations for candidates and parties.' },
+  { term:'Filing Period', cat:'process', def:'The window during which candidates must officially register their intention to run for office, submit required documents, pay any deposits, and meet eligibility criteria with the relevant electoral authority.' },
+  { term:'Campaign Period', cat:'process', def:'The formally defined time during which candidates and parties are permitted to campaign, advertise, and solicit votes. Spending limits and conduct rules typically apply during this period.' },
+  { term:'Early Voting', cat:'process', def:'Voting that takes place before the official Election Day, usually at designated early voting centers. Allows voters who cannot attend on Election Day to cast their ballot in advance.' },
+  { term:'Election Day', cat:'process', def:'The designated day on which eligible voters cast their ballots. In most countries this is a public holiday or held on a non-working day (e.g., Sunday in Germany) to maximize participation.' },
+  { term:'Vote Counting', cat:'process', def:'The formal process of tallying ballots after polling closes. Can be done manually or electronically, under the supervision of election officials and observers from parties and civil society.' },
+  { term:'Recount', cat:'process', def:'A second or subsequent count of votes cast in an election, typically triggered automatically when the margin of victory falls below a defined threshold, or upon request from a candidate.' },
+  { term:'Certification', cat:'process', def:'The formal official confirmation of election results by the relevant electoral authority. Once certified, results have legal force and winners may begin transitioning into office.' },
+  { term:'Runoff Election', cat:'process', def:'A second election held when no candidate received the required threshold of votes (often 50%+1) in the first round. The top two candidates from the first round compete in the runoff. Used in France and many other countries.' },
+  // Legal
+  { term:'Suffrage', cat:'legal', def:'The right to vote in political elections. Universal suffrage means all adult citizens have the right to vote regardless of gender, race, property ownership, or education. Achieving universal suffrage has been a long historical struggle.' },
+  { term:'Franchise', cat:'legal', def:'The legal right to vote in an election. Derived from the Old French word for "freedom." The expansion of franchise — from propertied men to all adults — is a key narrative of democratic history.' },
+  { term:'Ballot Access', cat:'legal', def:'The set of legal requirements a candidate or political party must meet to appear on the official election ballot. Can include signature thresholds, filing fees, party registration, and residency requirements.' },
+  { term:'Voter ID Laws', cat:'legal', def:'Laws requiring voters to present identification at the polling place before casting a ballot. Supporters argue they prevent fraud; critics argue they disproportionately disenfranchise marginalized communities.' },
+  { term:'Provisional Ballot', cat:'legal', def:'A ballot cast by a voter whose eligibility cannot be immediately confirmed at the polling place. The ballot is set aside and counted only after the voter\'s eligibility is verified, typically after Election Day.' },
+  { term:'Absentee Ballot', cat:'legal', def:'A ballot cast by a voter who is unable to attend the polling place in person, submitted by mail or other means before Election Day. Also known as a postal vote or mail-in ballot.' },
+  { term:'Recall Election', cat:'legal', def:'A special election in which voters can remove an elected official from office before their term ends. Requires a petition with a set number of signatures to trigger. Used in some US states and Switzerland.' },
+  // Voter
+  { term:'Voter Turnout', cat:'voter', def:'The percentage of eligible voters who actually cast a ballot in a given election. High turnout is generally seen as a positive sign for democracy. Global averages range from 50-70%, with compulsory voting countries exceeding 90%.' },
+  { term:'Swing Voter', cat:'voter', def:'A voter who does not have a strong allegiance to any particular political party and may vote for different parties in different elections. Swing voters are often the key target of campaigns in competitive elections.' },
+  { term:'Undecided Voter', cat:'voter', def:'A voter who has not yet made up their mind about which candidate or party to vote for. Undecided voters are closely tracked in pre-election polling as they can significantly influence the outcome.' },
+  { term:'First-Time Voter', cat:'voter', def:'A citizen voting in an election for the first time, typically because they have reached voting age. First-time voters are a significant demographic that parties and civic organizations work to engage.' },
+  { term:'Youth Vote', cat:'voter', def:'The electoral participation of young voters, typically ages 18–29. Youth voter turnout has historically been lower than older age groups, though this varies significantly by country and election.' },
+  { term:'Diaspora Voting', cat:'voter', def:'The ability of citizens living abroad to vote in their home country\'s elections. Many countries allow diaspora voting by postal ballot, at embassies, or via electronic means. A growing area of electoral law.' },
+  // System
+  { term:'First-Past-The-Post', cat:'system', def:'An electoral system in which the candidate with the most votes in a constituency wins, regardless of whether they have an absolute majority. Simple and decisive, but can lead to disproportionate results. Used in USA, UK, India, Canada.' },
+  { term:'Proportional Representation', cat:'system', def:'A family of electoral systems in which the proportion of seats a party wins closely matches the proportion of votes it received. More representative of voter preferences but can lead to coalition governments.' },
+  { term:'Mixed-Member Proportional', cat:'system', def:'An electoral system combining FPTP constituency seats with proportional representation party list seats. Germany\'s MMP system uses two votes, with the party list vote determining overall seat proportions.' },
+  { term:'Ranked-Choice Voting', cat:'system', def:'Voters rank candidates in order of preference. If no candidate has a majority of first-preference votes, the last-place candidate is eliminated and their votes redistributed based on second preferences. Used in Australia, Maine (USA).' },
+  { term:'Two-Round System', cat:'system', def:'If no candidate wins an outright majority in the first round, a second round is held between the top two candidates. Ensures the winner has majority support. Used in France, Russia, and many other countries.' },
+  { term:'Electoral College', cat:'system', def:'The system used to elect the US President. Each state\'s electoral votes equal its total Congressional representation (House + Senate). A candidate needs 270 of 538 electoral votes. Critics argue small states are over-represented.' },
+  { term:'Constituency', cat:'system', def:'A defined geographic area that elects one or more representatives to a legislature. Also called a district (US), riding (Canada), or seat (UK). The boundaries of constituencies can significantly affect election outcomes.' },
+];
+
+let glossDebounceTimer = null;
+function debounceGloss() {
+  clearTimeout(glossDebounceTimer);
+  glossDebounceTimer = setTimeout(renderGloss, 300);
+}
+
+function initGlossary() {
+  state.glossary.initialized = true;
+  renderGloss();
+}
+
+function renderGloss() {
+  const search = document.getElementById('glossSearch').value.toLowerCase();
+  const cat = state.glossary.category;
+  const filtered = glossTerms.filter(t =>
+    (cat === 'all' || t.cat === cat) &&
+    (t.term.toLowerCase().includes(search) || t.def.toLowerCase().includes(search))
+  );
+  document.getElementById('glossStats').textContent = `Showing ${filtered.length} of ${glossTerms.length} terms`;
+  const grid = document.getElementById('glossGrid');
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="gloss-empty"><i class="fa fa-search" style="font-size:24px;display:block;margin-bottom:10px"></i>No terms found. Try a different search.</div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(t => `
+    <div class="gloss-item" onclick="this.classList.toggle('open')">
+      <div class="gloss-head">
+        <span class="gloss-term">${highlight(t.term, search)}</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="gloss-cat-badge cat-${t.cat}">${t.cat}</span>
+          <span class="gloss-chevron"><i class="fa fa-chevron-down"></i></span>
+        </div>
+      </div>
+      <div class="gloss-body">
+        <div style="padding-top:12px">${highlight(t.def, search)}</div>
+        <button class="btn btn-outline btn-sm gloss-ask" onclick="event.stopPropagation();jumpToChat('Explain the election term: ${t.term}')">
+          <i class="fa fa-robot"></i> Ask AI about this term ↗
+        </button>
+      </div>
+    </div>`).join('');
+}
+
+function highlight(text, search) {
+  if (!search) return text;
+  const re = new RegExp(`(${search.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  return text.replace(re, '<mark style="background:rgba(201,56,42,0.15);color:var(--accent);border-radius:2px">$1</mark>');
+}
+
+function setGlossCat(cat, btn) {
+  state.glossary.category = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGloss();
+}
+
+/* ═══════════════════════════════════════════
+   MODULE 4: COMPARE DATA & RENDER
+═══════════════════════════════════════════ */
+const compareData = [
+  {
+    flag:'🇺🇸', country:'United States', system:'Presidential Republic — FPTP',
+    rows:[
+      ['Election Type','Presidential + Congressional'],
+      ['Parliament','Congress (535 seats)'],
+      ['Term Length','4 yrs (President), 2/6 yrs (Congress)'],
+      ['Voting Age','18+'],
+      ['Voting System','First-Past-The-Post'],
+      ['Election Day','First Tue after Nov 1st'],
+      ['Compulsory?','No'],
+      ['Postal Voting','Yes (state-dependent)'],
+    ],
+    turnout: 66, transparency: 85, access: 78, prop: 45
+  },
+  {
+    flag:'🇮🇳', country:'India', system:'Parliamentary Republic — FPTP',
+    rows:[
+      ['Election Type','General Election (Lok Sabha)'],
+      ['Parliament','543 Lok Sabha + 245 Rajya Sabha'],
+      ['Term Length','5 years'],
+      ['Voting Age','18+'],
+      ['Voting System','First-Past-The-Post'],
+      ['Election Body','Election Commission of India'],
+      ['Compulsory?','No'],
+      ['Voting Method','Electronic (EVMs + VVPAT)'],
+    ],
+    turnout: 67, transparency: 82, access: 70, prop: 42
+  },
+  {
+    flag:'🇩🇪', country:'Germany', system:'Federal Parliamentary Republic — MMP',
+    rows:[
+      ['Election Type','Federal Election (Bundestag)'],
+      ['Parliament','Bundestag (~736 seats)'],
+      ['Term Length','4 years'],
+      ['Voting Age','18+ (16 in some states)'],
+      ['Voting System','Mixed-Member Proportional'],
+      ['Election Day','Sunday'],
+      ['Compulsory?','No'],
+      ['Threshold','5% or 3 direct seats'],
+    ],
+    turnout: 76, transparency: 92, access: 88, prop: 89
+  }
+];
+
+function initCompare() {
+  state.compare.initialized = true;
+  renderCompare();
+}
+
+function renderCompare() {
+  const grid = document.getElementById('compareGrid');
+  grid.innerHTML = compareData.map(c => `
+    <div class="card compare-card" data-country="${c.country}">
+      <div class="cmp-flag">${c.flag}</div>
+      <div class="cmp-country">${c.country}</div>
+      <div class="cmp-system">${c.system}</div>
+      ${c.rows.map(r => `<div class="cmp-row"><span class="cmp-key">${r[0]}</span><span class="cmp-val">${r[1]}</span></div>`).join('')}
+      <div class="cmp-bars">
+        <div class="bar-item">
+          <div class="bar-meta"><span>Voter Turnout</span><span class="bar-pct">${c.turnout}%</span></div>
+          <div class="bar-track"><div class="bar-fill" data-width="${c.turnout}" style="width:0%;background:${c.turnout>=75?'#059669':c.turnout>=60?'#b45309':'#c9382a'}"></div></div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-meta"><span>Transparency Score</span><span class="bar-pct">${c.transparency}/100</span></div>
+          <div class="bar-track"><div class="bar-fill" data-width="${c.transparency}" style="width:0%;background:${c.transparency>=85?'#059669':c.transparency>=70?'#b45309':'#c9382a'}"></div></div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-meta"><span>Access Score</span><span class="bar-pct">${c.access}/100</span></div>
+          <div class="bar-track"><div class="bar-fill" data-width="${c.access}" style="width:0%;background:${c.access>=80?'#059669':c.access>=65?'#b45309':'#c9382a'}"></div></div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-meta"><span>Proportionality</span><span class="bar-pct">${c.prop}%</span></div>
+          <div class="bar-track"><div class="bar-fill" data-width="${c.prop}" style="width:0%;background:#1e3a8a"></div></div>
+        </div>
+      </div>
+    </div>`).join('');
+  // Animate bars
+  setTimeout(() => {
+    document.querySelectorAll('.bar-fill').forEach(b => {
+      b.style.width = b.dataset.width + '%';
+    });
+  }, 100);
+}
+
+function highlightDiffs() {
+  state.compareHighlight = !state.compareHighlight;
+  const cards = document.querySelectorAll('.compare-card');
+  if (state.compareHighlight) {
+    // Find best turnout
+    const maxTurnout = Math.max(...compareData.map(c => c.turnout));
+    const maxTransparency = Math.max(...compareData.map(c => c.transparency));
+    const maxAccess = Math.max(...compareData.map(c => c.access));
+    cards.forEach((card, i) => {
+      const c = compareData[i];
+      if (c.turnout === maxTurnout) card.classList.add('cmp-highlight');
+      else card.classList.remove('cmp-highlight');
+    });
+    showToast('🟡 Highlighted: Best performer in voter turnout');
+  } else {
+    cards.forEach(c => c.classList.remove('cmp-highlight'));
+  }
+}
+
+function exportComparison() {
+  // Simple text export since html2canvas isn't loaded
+  const rows = [['Metric','USA','India','Germany']];
+  rows.push(['Voter Turnout', '66%', '67%', '76%']);
+  rows.push(['Transparency', '85/100', '82/100', '92/100']);
+  rows.push(['Access Score', '78/100', '70/100', '88/100']);
+  rows.push(['Proportionality', '45%', '42%', '89%']);
+  rows.push(['Voting System', 'FPTP', 'FPTP', 'MMP']);
+  rows.push(['Term Length', '4 yrs', '5 yrs', '4 yrs']);
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'electiq-comparison.csv'; a.click();
+  updateLastSaved();
+  showToast('📥 Comparison exported as CSV!');
+}
+
+/* ═══════════════════════════════════════════
+   MODULE 5: CHAT
+═══════════════════════════════════════════ */
+const SYSTEM_PROMPT = `You are ElectIQ, a highly knowledgeable and engaging election education assistant. Your purpose is to help users understand elections, voting systems, and democratic processes worldwide.
+
+Guidelines:
+- Provide accurate, unbiased, and nonpartisan information
+- Be educational, clear, and engaging
+- Use bullet points, bold text, and structure for readability
+- Cover topics: electoral systems, voter registration, candidate processes, vote counting, election law, comparative democracy
+- When relevant, give examples from multiple countries
+- Keep responses concise but comprehensive (150-350 words)
+- Always encourage civic participation and critical thinking
+- If asked about controversial political topics, present balanced perspectives`;
+
+function initChat() {
+  state.chat.initialized = true;
+  if (!ANTHROPIC_API_KEY) {
+    document.getElementById('apiNotice').style.display = 'flex';
+  }
+  appendMessage('assistant', `Hello! I'm **ElectIQ AI**, your personal election guide. 🗳️
+
+I can help you understand:
+- How elections are structured in different countries
+- Voter registration and eligibility requirements
+- Different electoral systems (FPTP, PR, MMP, RCV)
+- The candidate nomination and campaign process
+- How votes are counted and results certified
+- Key democratic concepts and terminology
+
+What would you like to explore today?`);
+}
+
+function appendMessage(role, content) {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.innerHTML = `
+    <div class="msg-avatar">${role === 'assistant' ? 'E' : 'U'}</div>
+    <div class="msg-bubble">${formatMsg(content)}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  state.chat.messages.push({ role, content });
+}
+
+function formatMsg(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g,'<em>$1</em>')
+    .replace(/^- (.+)$/gm,'<li>$1</li>')
+    .replace(/^• (.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>[\s\S]*?<\/li>)+/g, m => `<ul>${m}</ul>`)
+    .replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
+}
+
+let typingMsgId = null;
+function showTyping() {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  const id = 'typing-' + Date.now();
+  div.id = id; div.className = 'msg assistant';
+  div.innerHTML = `<div class="msg-avatar">E</div><div class="msg-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return id;
+}
+function removeTyping(id) { const el = document.getElementById(id); if (el) el.remove(); }
+
+const mockResponses = [
+  'Elections are the cornerstone of democracy. In most countries, the process involves **voter registration**, **candidate nomination**, a **campaign period**, **voting day**, and finally **results certification**. Would you like to know more about any specific step or country?',
+  'Different countries use different voting systems. **First-Past-the-Post** (USA, UK, India) gives the win to whoever gets the most votes. **Proportional Representation** (many EU countries) allocates seats based on vote share. **Mixed systems** like Germany\'s MMP try to combine the benefits of both.',
+  'Voter registration requirements vary widely. In the **USA**, voters must register in advance (deadlines vary by state). In **Germany**, registration is automatic through the population registry. In **India**, citizens register with the Election Commission to receive a Voter ID card.',
+  'The Electoral College in the **United States** has 538 electors. A candidate needs **270 electoral votes** to win. Each state\'s electoral votes equal its total Congressional seats. Critics argue it can result in a president who won fewer popular votes than their opponent.',
+];
+let mockIdx = 0;
+
+async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg || state.chat.isLoading) return;
+  input.value = ''; input.style.height = 'auto';
+  updateCharCount();
+  document.getElementById('chatSugs').style.display = 'none';
+  appendMessage('user', msg);
+  state.chat.isLoading = true;
+  document.getElementById('sendBtn').disabled = true;
+  const typingId = showTyping();
+  try {
+    if (!ANTHROPIC_API_KEY) {
+      await new Promise(r => setTimeout(r, 1200 + Math.random()*800));
+      removeTyping(typingId);
+      appendMessage('assistant', mockResponses[mockIdx % mockResponses.length]);
+      mockIdx++;
+    } else {
+      const apiMessages = state.chat.messages
+        .filter(m => m.role !== 'assistant' || m.content !== state.chat.messages[0]?.content)
+        .slice(-20)
+        .map(m => ({ role: m.role, content: m.content }));
+      apiMessages.push({ role: 'user', content: msg });
+      let retries = 0;
+      let success = false;
+      while (retries < 3 && !success) {
+        try {
+          const resp = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+            body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system:SYSTEM_PROMPT, messages:apiMessages })
+          });
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+          const data = await resp.json();
+          const text = data.content.map(c => c.text||'').join('');
+          removeTyping(typingId);
+          appendMessage('assistant', text);
+          success = true;
+        } catch(e) {
+          retries++;
+          if (retries >= 3) {
+            removeTyping(typingId);
+            appendMessage('assistant', `⚠️ I'm having trouble connecting. Please check your internet connection and API key, then try again.`);
+          } else {
+            await new Promise(r => setTimeout(r, 1000 * retries));
+          }
+        }
+      }
+    }
+  } finally {
+    state.chat.isLoading = false;
+    document.getElementById('sendBtn').disabled = false;
+  }
+}
+
+function clearChat() {
+  const msgs = document.getElementById('chatMessages');
+  msgs.innerHTML = '';
+  state.chat.messages = [];
+  document.getElementById('chatSugs').style.display = 'flex';
+  initChat();
+  showToast('💬 Chat cleared');
+}
+
+function suggestMsg(btn) {
+  document.getElementById('chatInput').value = btn.textContent.trim();
+  document.getElementById('chatSugs').style.display = 'none';
+  sendMessage();
+}
+
+function handleInputResize() {
+  const el = document.getElementById('chatInput');
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 110) + 'px';
+}
+
+function updateCharCount() {
+  const el = document.getElementById('chatInput');
+  const count = document.getElementById('charCount');
+  const len = el.value.length;
+  count.textContent = `${len} / 2000`;
+  count.className = 'char-count' + (len > 1800 ? ' warn' : '');
+}
+
+function saveChatHistory() {
+  if (!state.chat.messages.length) { showToast('No messages to save.'); return; }
+  const text = state.chat.messages.map(m => `[${m.role.toUpperCase()}]\n${m.content}`).join('\n\n---\n\n');
+  const blob = new Blob([`ElectIQ Chat History\nExported: ${new Date().toLocaleString()}\n\n===\n\n${text}`], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'electiq-chat-history.txt'; a.click();
+  updateLastSaved();
+  showToast('📥 Chat saved!');
+}
+
+function jumpToChat(text) {
+  showSection('chat', document.getElementById('nav-chat'));
+  if (!state.chat.initialized) initChat();
+  document.getElementById('chatInput').value = text;
+  document.getElementById('chatSugs').style.display = 'none';
+  sendMessage();
+}
+
+/* ═══════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════ */
+function updateLastSaved() {
+  const ls = document.getElementById('lastSaved');
+  ls.style.display = 'flex';
+  document.getElementById('lastSavedTime').textContent = new Date().toLocaleTimeString();
+}
+
+/* ═══════════════════════════════════════════
+   DASHBOARD — Did You Know + Achievements
+═══════════════════════════════════════════ */
+const DYK_FACTS = [
+  "Australia introduced the secret ballot in 1856 — before that, voters had to publicly declare their choice, which led to widespread intimidation and bribery.",
+  "India runs the world's largest democratic election, with over 970 million eligible voters across 28 states and 8 union territories.",
+  "New Zealand was the first country in the world to grant women the right to vote, in 1893 — 27 years before the United States.",
+  "The word 'ballot' comes from the Italian 'ballotta', meaning a small ball used in voting in ancient Venice.",
+  "Switzerland holds more referendums than any other country — citizens vote on federal issues up to 4 times a year.",
+  "Germany's 5% electoral threshold prevents very small parties from entering parliament, designed to avoid the fragmentation that destabilised the Weimar Republic.",
+  "The United States Electoral College was established in 1787 — originally, electors were expected to use independent judgment, not follow popular vote.",
+  "Brazil, Australia, and Belgium have compulsory voting laws — citizens can be fined for not casting a ballot.",
+  "The longest-serving democratic parliament is the UK Parliament, founded in 1265 — making it over 750 years old.",
+  "In South Korea, elections are always held on a Wednesday to minimise disruption to business and trade.",
+  "Iceland elected the world's first democratically chosen female head of government — Vigdís Finnbogadóttir — in 1980.",
+  "The shortest election campaign in recorded history was in Uganda in 1980, where candidates had only 7 days to campaign.",
+  "Japan's voter turnout in national elections has averaged around 55% — significantly lower than most other OECD nations.",
+  "Sweden has consistently achieved over 85% voter turnout without compulsory voting, due to its highly civic-engaged culture.",
+  "The first US presidential election in 1788–89 had only white male property owners eligible to vote — roughly 6% of the population.",
+];
+let dykIndex = Math.floor(Math.random() * DYK_FACTS.length);
+
+function nextFact() {
+  dykIndex = (dykIndex + 1) % DYK_FACTS.length;
+  document.getElementById('dykText').textContent = DYK_FACTS[dykIndex];
+}
+
+const ACHIEVEMENTS = [
+  { id: 'first_visit',    icon: '🎉', title: 'First Steps',        desc: 'Opened ElectIQ for the first time',       check: () => true },
+  { id: 'quiz_complete',  icon: '🧠', title: 'Quiz Taker',         desc: 'Completed the knowledge quiz',            check: () => state.quiz.bestScore >= 0 && state.quiz.answers.length === 10 },
+  { id: 'quiz_perfect',   icon: '🏆', title: 'Democracy Scholar',  desc: 'Scored 10/10 on the knowledge quiz',      check: () => state.quiz.bestScore === 10 },
+  { id: 'quiz_7plus',     icon: '⭐', title: 'Civic Expert',       desc: 'Scored 7 or more on the quiz',            check: () => state.quiz.bestScore >= 7 },
+  { id: 'chat_used',      icon: '💬', title: 'AI Curious',         desc: 'Sent a message in AI Chat',               check: () => state.chat.messages.filter(m=>m.role==='user').length > 0 },
+  { id: 'dark_mode',      icon: '🌙', title: 'Night Owl',          desc: 'Enabled dark mode',                       check: () => state.darkMode },
+  { id: 'compared',       icon: '🌐', title: 'Global Thinker',     desc: 'Visited the Compare Systems module',      check: () => state.visitedSections && state.visitedSections.has('compare') },
+  { id: 'all_modules',    icon: '🗺️', title: 'Explorer',           desc: 'Visited all 5 core modules',              check: () => state.visitedSections && ['timeline','quiz','glossary','compare','chat'].every(s => state.visitedSections.has(s)) },
+];
+
+function updateDashboard() {
+  // Did you know
+  document.getElementById('dykText').textContent = DYK_FACTS[dykIndex];
+
+  // Quiz score
+  const best = state.quiz.bestScore;
+  const scoreEl = document.getElementById('dash-quiz-score');
+  const barEl = document.getElementById('dash-quiz-bar');
+  if (best >= 0 && state.quiz.answers.length === 10) {
+    scoreEl.textContent = `${best} / 10`;
+    barEl.style.width = `${best * 10}%`;
+  } else {
+    scoreEl.textContent = '—';
+    barEl.style.width = '0%';
+  }
+
+  // Modules visited
+  const visited = state.visitedSections ? state.visitedSections.size : 1;
+  const total = 5;
+  document.getElementById('dash-modules').textContent = `${Math.min(visited, total)} / ${total}`;
+  document.getElementById('dash-modules-bar').style.width = `${Math.min(visited / total * 100, 100)}%`;
+
+  // Achievements
+  const list = document.getElementById('achievementsList');
+  list.innerHTML = '';
+  ACHIEVEMENTS.forEach(a => {
+    const unlocked = a.check();
+    const el = document.createElement('div');
+    el.style.cssText = `display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius-sm);border:1px solid ${unlocked ? 'var(--accent)' : 'var(--border)'};background:${unlocked ? 'rgba(201,56,42,0.05)' : 'var(--bg2)'};opacity:${unlocked ? '1' : '0.5'}`;
+    el.innerHTML = `<span style="font-size:24px">${a.icon}</span><div><div style="font-weight:600;font-size:14px;color:var(--text)">${a.title}</div><div style="font-size:12px;color:var(--text2)">${a.desc}</div></div>`;
+    list.appendChild(el);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+initTheme();
+// Init visited sections tracker
+if (!state.visitedSections) state.visitedSections = new Set(['timeline']);
+// Show best score if exists
+if (state.quiz.bestScore >= 0) {
+  document.getElementById('bestScore').innerHTML = `<i class="fa fa-trophy"></i> Best: ${state.quiz.bestScore}/10`;
+}
+// Keyboard nav
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeMobileMenu();
+});
+</script>
+</body>
+</html>
